@@ -96,63 +96,6 @@ void printships(struct node *list)                                            //
         printf("\n");
     }
 }
-/*void deleteship(struct node **list , int zero , int *arr[12][12])
-{
-    struct node *cur = *list , *prev=NULL;
-    if (cur!=NULL && cur->len==zero)
-    {
-        if (cur->start_x==cur->end_x)                                   //ofoghi
-        {
-            for (int i = cur->start_y; i<=cur->end_y; i++)
-            {
-                *arr[cur->start_x+1][i]=2;
-            }
-        }else                                                           //amoodi
-        {
-            for (int i = cur->start_x; i<=cur->end_x; i++)
-            {
-                *arr[i][cur->start_x]=2;
-            }
-        }
-        *list = cur->next;
-        free(cur);
-        return;
-    }
-    
-    while (cur!=NULL && cur->len!=zero)
-    {
-        prev = cur;
-        cur = cur->next;
-    }
-    if (cur->start_x==cur->end_x)                                   //ofoghi
-    {
-        for (int i = cur->start_y; i<=cur->end_y; i++)
-        {
-            *arr[cur->start_x+1][i]=2;
-        }
-    }else                                                           //amoodi
-    {
-        for (int i = cur->start_x; i<=cur->end_x; i++)
-        {
-            *arr[i][cur->start_x]=2;
-        }
-    }
-
-    prev->next = cur->next;
-    free(cur);
-    return;
-}*/
-void completekill(int *arr[12][12] , int x1 , int y1 , int x2 , int y2 , int len)
-{
-    if (x1==x2)
-    {
-        for (int i= y1; i<=y2; i++)
-        {
-            *arr[x1][i]=2;
-        }
-    }
-    
-}
 void searchships(int x , int y , struct node **list )
 {
     struct node *cur = *list;
