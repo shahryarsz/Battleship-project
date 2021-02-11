@@ -2,18 +2,24 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <time.h>
 
 int map1[12][12];                                     //player1 game map
 int map2[12][12];                                     //player2 game map
+int map3[12][12];
 int attackmap1[12][12];                                //map of player 2 for player 1
 int attackmap2[12][12];                                //map of player 1 for player 2
+int attackmap3[12][12];
 int *pshots1[12][12];
 int *pshots2[12][12];
+int *pshots3[12][12];
 int *attackenemy1[12][12];
 int *attackenemy2[12][12];
+int *attackenemy3[12][12];
 int ID = 101;
 struct node *ships1 = NULL;
 struct node *ships2 = NULL;
+struct mode *ships3 = NULL;
 
 void syncingMaps(int *map[12][12], int *attackmap[12][12])                //syncing main map and enemy map
 {
@@ -89,7 +95,7 @@ void addfront1(struct node **list, int id, int x1, int y1, int len)             
     *list = newnode;
 }
 
-/*void printships(struct node *list)                                            //printing the list of ships
+void printships(struct node *list)                                            //printing the list of ships
 {
     struct node *cur = list;
     while (cur != NULL)
@@ -108,7 +114,7 @@ void addfront1(struct node **list, int id, int x1, int y1, int len)             
             printf("\n");
         }
     }
-}*/
+}
 
 void searchships(int id, struct node **list, int turn)              //searching and destroying ships
 {
@@ -125,9 +131,12 @@ void searchships(int id, struct node **list, int turn)              //searching 
         if (turn == 1)
         {
             showWater(attackenemy2, cur->start_x, cur->start_y, cur->end_x, cur->end_y);
-        } else
+        } else if (turn==2)
         {
             showWater(attackenemy1, cur->start_x, cur->start_y, cur->end_x, cur->end_y);
+        }else if(turn==3)
+        {
+            showWater(attackenemy3, cur->start_x, cur->start_y, cur->end_x, cur->end_y);
         }
         if (prev == NULL)
         {
@@ -141,6 +150,108 @@ void searchships(int id, struct node **list, int turn)              //searching 
     }
 
 }
+void mapbot(int *arr[12][12] ,struct node **list)
+{
+    for (int i =1; i<=5; i++)                           //ship size 5
+    {
+        *arr[1][i]=101;
+    }
+    for (int i =1; i<=3; i++)                           //ship size 3
+    {
+        *arr[3][i]=102;
+    }
+    for (int i=5; i<=7; i++)                            //ship size 3
+    {
+        *arr[5][i]=103;
+    }
+    for (int i=1; i<=2; i++)
+    {
+        *arr[i][10]=104;
+    }
+    for (int i=8; i<=9; i++)
+    {
+        *arr[i][1]=105;
+    }
+    for (int i = 8; i<=9; i++)
+    {
+        *arr[i][6]=106;
+    }
+    *arr[2][7]=107;
+    *arr[6][1]=108;
+    *arr[7][10]=109;
+    *arr[10][10]=110;
+    addfront(list, 101, 0 , 0 , 0, 4, 5);
+    addfront(list, 102, 2, 0, 2, 2, 3);
+    addfront(list, 103, 4 , 4, 4 , 6, 3);
+    addfront(list, 104, 0, 9, 1, 9, 2);
+    addfront(list, 105, 7, 0, 8, 0, 2);
+    addfront(list, 106, 7, 5, 8, 5, 2);
+    addfront1(list, 107, 1, 6, 1);
+    addfront1(list, 108, 5, 0, 1);
+    addfront1(list, 109, 6, 9, 1);
+    addfront1(list, 110, 9, 9, 1);
+}
+/*void randmap(int *map[12][12] , struct node **list)
+{
+    srand(time(NULL));
+    int x1 , y1 , m , x2 , y2;
+    m = rand()%2;
+    if (m==0)                                                       //ofoghi
+    {
+        x1 = rand()%10;
+        y1 = rand()%10;
+        if (x1+4<9)
+        {
+            x2 = x1+4;
+            y2 = y1;
+        }else
+        {
+            x2 = x1-4;
+            y2 = y1;
+        }
+        //conditions
+        while (1)
+        {
+            if ((*map[x1 + 1][y1 + 1] > 100 && *map[x1 + 1][y1 + 1] < 115) || *map[x1 + 1][y1 + 1] == 5)
+            {
+                continue;
+            }
+            for (int i = y1; i <= y2; i++)                              //inserting ships on map
+            {
+                *map[x1 + 1][i + 1] = ID;
+            }
+            x1++;
+            y1++;
+            x2++;
+            y2++;
+            for (int i = y1 - 1; i <= y2 + 1; i++)                      //making border for the ship
+            {
+                if (*map[x1 - 1][i] != 4)
+                {
+                    *map[x1 - 1][i] = 5;
+                }
+                if (*map[x1 + 1][i] != 4)
+                {
+                    *map[x1 + 1][i] = 5;
+                }
+            }
+            if (*map[x1][y1 - 1] != 4)
+            {
+                *map[x1][y1 - 1] = 5;
+            }
+            if (*map[x1][y2 + 1] != 4)
+            {
+                *map[x1][y2 + 1] = 5;
+            }
+            x1--;
+            y1--;
+            x2--;
+            y2--;
+            addfront(list, ID, x1, y1, x2, y2, 5);
+            ID++;
+        }
+    }
+}*/
 void getship(int *map[12][12], struct node **list, int n, int size)              //getting all ships
 {
     while (1)
@@ -419,14 +530,16 @@ void shooting(int *arr[12][12], int x, int y, struct node **list, int turn)
 {
     printf("\nyour enemy map is:\n");
     printmap(arr);
-    while (*list != NULL) {
+    while (*list != NULL)
+    {
         printf("\nchoose your shot\n");
         scanf("%d %d", &x, &y);
-        if (x > 9 || x < 0 || y > 9 || y < 0) {
+        if (x > 9 || x < 0 || y > 9 || y < 0)
+        {
             printf("wrong input! try again!\n");
             continue;
         }
-        if (*arr[x + 1][y + 1] == 20 || *arr[x + 1][y + 1] == 25)                         //shots on water or borders
+        if (*arr[x + 1][y + 1] == 20 || *arr[x + 1][y + 1] == 25)               //shots on water or borders
         {
             *arr[x + 1][y + 1] = 3;
             printf("\n\noops,you missed it!\n\n");
@@ -436,13 +549,42 @@ void shooting(int *arr[12][12], int x, int y, struct node **list, int turn)
         } else if (*arr[x + 1][y + 1] == 3 || *arr[x + 1][y + 1] == 1)                     //already shot
         {
             printf("\nyou cant shoot here!try again!\n");
-        } else {
+        } else
+        {
             int temp = *arr[x + 1][y + 1];                                       //correct shot
             *arr[x + 1][y + 1] = 1;
             searchships(temp - 20, list, turn);
             printf("\nwow!nice shot :O !\nas a gift shot again!:)\n");
             printf("\nnow the map is :\n");
             printmap(arr);
+        }
+    }
+}
+void botshooting(int *arr[12][12] ,struct node **list ,int turn)
+{
+    while (*list!=NULL)
+    {
+        srand(time(NULL));
+        x = rand()%10;
+        y= rand()%10;
+        if (*arr[x + 1][y + 1] == 20 || *arr[x + 1][y + 1] == 25)               //shots on water or borders
+        {
+            *arr[x + 1][y + 1] = 3;
+            printf("\n\nyour map is :\n\n");
+            printmap(arr);
+            return;
+        } else if (*arr[x + 1][y + 1] == 3 || *arr[x + 1][y + 1] == 1){
+            printf("\nyou cant shoot here!try again!\n");
+        } else
+        {
+            int temp = *arr[x + 1][y + 1];                                       //correct shot
+            *arr[x + 1][y + 1] = 1;
+            searchships(temp - 20, list, turn);
+            printf("\n\nyour map is :\n\n");
+            printmap(arr);
+            printf("\n\nthe bot shoud shoot you again:(\n!please enter shit to continue!\n\n");
+            int boom;
+            scanf("%d" , &boom);
         }
     }
 }
@@ -520,7 +662,8 @@ void showmenu()                                                                 
 void gameSTART()                                                                //starting game
 {
     printf("\n\nLETS START THE GAME!\n\n");
-    while (1) {
+    while (1)
+    {
         //player 1 turn:
         printf("\n\nplayer 1 turn:\n\n");
         shooting(attackenemy2, x, y, &ships2, 1);
@@ -529,10 +672,11 @@ void gameSTART()                                                                
             printf("\n\nBOOOM!\n\nPlayer 1 win!!!\n\n");
             return;
         }
-        printships(ships2);
+        
         //player 2 turn
         printf("\n\nplayer 2 turn:\n\n");
-        while (1) {
+        while (1)
+        {
             shooting(attackenemy1, x, y, &ships1, 2);
             if (ships1 == NULL)
             {
@@ -543,9 +687,35 @@ void gameSTART()                                                                
         }
     }
 }
+void gameSTARTbot()
+{
+    printf("\n\nLETS START THE GAME!\n\n");
+    while (1)
+    {
+        //player 1 turn:
+        printf("\n\nplayer 1 turn:\n\n");
+        shooting(attackenemy3, x, y, &ships3, 3);
+        if (ships3 == NULL)
+        {
+            printf("\n\nBOOOM!\n\nYou win!!!\n\n");
+            return;
+        }
+        
+        
+        // bot turn
+        
+        botshooting(attackenemy1, &ships1, 2);
+        if (ships1==NULL)
+        {
+            printf("\n\nOops!\n\nYou lose!!!\n\n");
+            return;
+        
+        }
+    }
+    
+}
 
 int choice;
-
 void entermenu()
 {
     while (choice != 7)
@@ -598,6 +768,7 @@ void entermenu()
                     getship(pshots1, &ships1, 4, 1);
                     printmap(pshots1);
                     syncingMaps(pshots1, attackenemy1);
+                    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
                 } else
                 {
@@ -652,6 +823,7 @@ void entermenu()
                     getship(pshots2, &ships2, 4, 1);
                     printmap(pshots2);
                     syncingMaps(pshots2, attackenemy2);
+                    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
 
                 } else
@@ -664,7 +836,7 @@ void entermenu()
             gameSTART();
         } else if (choice == 2)
         {
-            //BLAKC BOX FOR STARTING THE GAME WITH BOT
+            //STARTING THE GAME WITH BOT
             while (1)
             {
                 int choice1;
@@ -696,7 +868,11 @@ void entermenu()
                 }
                 break;
             }
-            
+            mapbot(pshots3, &ships3);
+            syncingMaps(pshots3, attackenemy3);
+            printf("\n\nbot ships ar:\n\n");
+            printships(ships3);
+            gameSTARTbot();
         } else if (choice == 3)
         {
             //BLACK BOX FOR LOAD GAME
@@ -731,6 +907,8 @@ int main()
             map2[i][j] = 0;
             attackmap1[i][j] = 10;
             attackmap2[i][j] = 10;
+            map3[i][j] = 0;
+            attackmap3[i][j] = 10;
         }
     }
     for (int i = 0; i < 12; i++)
@@ -745,6 +923,11 @@ int main()
         map2[i][0] = 4;
         map2[11][i] = 4;
         map2[i][11] = 4;
+        //map3
+        map3[0][i] = 4;
+        map3[i][0] = 4;
+        map3[11][i] = 4;
+        map3[i][11] = 4;
         //attackmap1
         attackmap1[0][i] = 4;
         attackmap1[i][0] = 4;
@@ -755,6 +938,11 @@ int main()
         attackmap2[i][0] = 4;
         attackmap2[11][i] = 4;
         attackmap2[i][11] = 4;
+        //attackmap3
+        attackmap3[0][i] = 4;
+        attackmap3[i][0] = 4;
+        attackmap3[11][i] = 4;
+        attackmap3[i][11] = 4;
     }
     //initializing pointer to map1
     for (int i = 0; i < 12; i++)
@@ -770,6 +958,14 @@ int main()
         for (int j = 0; j < 12; j++)
         {
             pshots2[i][j] = &map2[i][j];
+        }
+    }
+    //initializing pointer to map3
+    for (int i = 0; i < 12; i++)
+    {
+        for (int j = 0; j < 12; j++)
+        {
+            pshots3[i][j] = &map3[i][j];
         }
     }
     //initializing pointer to attackmap1
@@ -788,7 +984,16 @@ int main()
             attackenemy2[i][j] = &attackmap2[i][j];
         }
     }
+    //initializing pointer to attackmap3
+    for (int i = 0; i < 12; i++)
+    {
+        for (int j = 0; j < 12; j++)
+        {
+            attackenemy3[i][j] = &attackmap3[i][j];
+        }
+    }
     entermenu();
+    
 }
 
 
