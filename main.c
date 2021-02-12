@@ -4,9 +4,8 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-
 #define USERSPATH "user.txt"
-
+//bug fixed
 int map1[12][12];                                     //player1 game map
 int map2[12][12];                                     //player2 game map
 int map3[12][12];
@@ -44,17 +43,16 @@ struct Players
 {
     int score;
     char username[100];
-}users[2];
-
-int updateuser(char username[100], int score)                               //updating users scores
+};
+int updateuser(char username[100], int score)                                   //updating users scores
 {
     FILE* fp = fopen(USERSPATH, "w+");
     if (fp == NULL)
     {
-        printf("\nerror!\n");
+        printf("\n\nERROR!\n\n");
         return -1;
     }
-    while (feof(fp) != 0)
+    while (feof(fp) != 1)
     {
         char usrnm[100];
         char tmp[20];
@@ -68,23 +66,24 @@ int updateuser(char username[100], int score)                               //up
             sprintf(scr, "%d", score);
             fputs(scr,fp);
             fputc('\n', fp);
+            fclose(fp);
             return 1;
         }
     }
+    fclose(fp);
     return -1;
 }
-int newuser(char username[100])                                         //getting new user & adding to file
+int newuser(char username[100])                                             //adding new user to the file
 {
     FILE* fp = fopen(USERSPATH, "a+");
     if (fp == NULL)
     {
-        printf("\nerror!\n");
+        printf("\n\nERROR!\n\n");
         return -1;
     }
     fseek(fp, 0, SEEK_SET);
     while (feof(fp) != 1)
     {
-        
         char usrnm[100];
         char tmp[20];
         fscanf(fp, "%s", usrnm);
@@ -92,9 +91,11 @@ int newuser(char username[100])                                         //gettin
         if (strcmp(username, usrnm) == 0)
         {
             printf("\nError!user exist!\n\n");
+            fclose(fp);
             return -2;
         }
     }
+    fseek(fp, 0, SEEK_END);
     fputs(username, fp);
     fputc(' ', fp);
     fputc('0', fp);
@@ -103,12 +104,12 @@ int newuser(char username[100])                                         //gettin
     return 1;
 }
 
-int showusers()                                                         //showing the list of users
+int showusers()                                                          //reading users from the file
 {
     FILE* fp = fopen(USERSPATH, "r");
     if (fp == NULL)
     {
-        printf("\nerror!\n");
+        printf("\n\nERROR!\n\n");
         return -1;
     }
     while(feof(fp)!=1)
@@ -122,7 +123,7 @@ int showusers()                                                         //showin
     return 1;
 }
 
-int loadlinkedlist(char path[], int mode)                               //for loading ships
+int loadlinkedlist(char path[], int mode)            //reading linked list from the file and making the list
 {
     FILE* fp = fopen(path, "r");
     if (mode == 1)
@@ -214,7 +215,7 @@ int loadlinkedlist(char path[], int mode)                               //for lo
     return -1;
 }
 
-int savelinklist(char usr1[], char usr2[], int mode)                    //saving linklist of ships
+int savelinklist(char usr1[], char usr2[], int mode)                 //saving the linked list in a file
 {
     char filename[256];
     bzero(filename, 256);
@@ -226,7 +227,7 @@ int savelinklist(char usr1[], char usr2[], int mode)                    //saving
     FILE* fp = fopen(filename, "w");
     if (fp == NULL)
     {
-        printf("\nerror!\n");
+        printf("\n\nERROR!\n\n");
         return -1;
     }
     if (mode == 1)
@@ -247,7 +248,7 @@ int savelinklist(char usr1[], char usr2[], int mode)                    //saving
             sprintf(temp3, "%d", cur->end_x);
             sprintf(temp4, "%d", cur->end_y);
             sprintf(temp5, "%d", cur->len);
-            
+           
             fputs(temp0, fp);
             fputc(' ', fp);
             fputs(temp1, fp);
@@ -258,10 +259,9 @@ int savelinklist(char usr1[], char usr2[], int mode)                    //saving
             fputc(' ', fp);
             fputs(temp4, fp);
             fputc(' ', fp);
-            fputs(temp0, fp);
+            fputs(temp5, fp);
             fputc(' ', fp);
             fputc('\n', fp);
-            
             cur = cur->next;
         }
         struct node* cur2 = ships3;
@@ -280,7 +280,7 @@ int savelinklist(char usr1[], char usr2[], int mode)                    //saving
             sprintf(temp3, "%d", cur2->end_x);
             sprintf(temp4, "%d", cur2->end_y);
             sprintf(temp5, "%d", cur2->len);
-        
+            
             fputs(temp0, fp);
             fputc(' ', fp);
             fputs(temp1, fp);
@@ -291,10 +291,9 @@ int savelinklist(char usr1[], char usr2[], int mode)                    //saving
             fputc(' ', fp);
             fputs(temp4, fp);
             fputc(' ', fp);
-            fputs(temp0, fp);
+            fputs(temp5, fp);
             fputc(' ', fp);
             fputc('\n', fp);
-            
             cur2 = cur2->next;
         }
     }
@@ -327,10 +326,9 @@ int savelinklist(char usr1[], char usr2[], int mode)                    //saving
             fputc(' ', fp);
             fputs(temp4, fp);
             fputc(' ', fp);
-            fputs(temp0, fp);
+            fputs(temp5, fp);
             fputc(' ', fp);
             fputc('\n', fp);
-            
             cur = cur->next;
         }
         struct node* cur2 = ships2;
@@ -350,6 +348,7 @@ int savelinklist(char usr1[], char usr2[], int mode)                    //saving
             sprintf(temp4, "%d", cur2->end_y);
             sprintf(temp5, "%d", cur2->len);
             
+            fputs(temp0, fp);
             fputc(' ', fp);
             fputs(temp1, fp);
             fputc(' ', fp);
@@ -359,10 +358,9 @@ int savelinklist(char usr1[], char usr2[], int mode)                    //saving
             fputc(' ', fp);
             fputs(temp4, fp);
             fputc(' ', fp);
-            fputs(temp0, fp);
+            fputs(temp5, fp);
             fputc(' ', fp);
             fputc('\n', fp);
-            
             cur2 = cur2->next;
         }
     }
@@ -370,13 +368,13 @@ int savelinklist(char usr1[], char usr2[], int mode)                    //saving
     return 0;
 }
 
-int LoadGame(char path[], int size)                                         //for loading maps
+int LoadGame(char path[], int size)                                     //loading the maps
 {
     printf("%s", path);
-    FILE* fp = fopen(path, "r");
+    FILE *fp = fopen(path, "r");
     if (fp == NULL)
     {
-        printf("\nerror!\n");
+        printf("\n\nERROR!\n\n");
         return -1;
     }
     char mode;
@@ -388,7 +386,7 @@ int LoadGame(char path[], int size)                                         //fo
         {
             for (int j = 0; j < 12; j++)
             {
-                fscanf(fp, "%d", &*pshots1[i][j]);
+                fscanf(fp, "%d", pshots1[i][j]);
             }
         }
         //reading player 1's attackenemy
@@ -396,8 +394,8 @@ int LoadGame(char path[], int size)                                         //fo
         {
             for (int j = 0; j < 12; j++)
             {
-                fscanf(fp, "%d", &*pshots1[i][j]);
-
+                fscanf(fp, "%d", attackenemy1[i][j]);
+                
             }
         }
         //reading bot's map
@@ -405,7 +403,7 @@ int LoadGame(char path[], int size)                                         //fo
         {
             for (int j = 0; j < 12; j++)
             {
-                fscanf(fp, "%d", &*pshots1[i][j]);
+                fscanf(fp, "%d", pshots3[i][j]);
             }
         }
         //reading bot's attackenemy
@@ -413,7 +411,7 @@ int LoadGame(char path[], int size)                                         //fo
         {
             for (int j = 0; j < 12; j++)
             {
-                fscanf(fp, "%d", &*pshots1[i][j]);
+                fscanf(fp, "%d", attackenemy3[i][j]);
             }
         }
         fclose(fp);
@@ -421,7 +419,7 @@ int LoadGame(char path[], int size)                                         //fo
     }
     else if (mode == '2')
     {
-        printf("\nerror!\n");
+        printf("\n\nERROR!\n\n");
         //reading player 1's map
         for (int i = 0; i < 12; i++)
         {
@@ -460,37 +458,7 @@ int LoadGame(char path[], int size)                                         //fo
     else
         return -1;
 }
-
-int LoadUser(char username[])                                           //for loading users
-{
-
-    FILE* fp = fopen(USERSPATH, "r");
-    if (fp == NULL)
-    {
-        printf("\nerror!\n");
-        return -1;
-    }
-    char usrnm[100];
-    while (feof(fp)!=1)
-    {
-        fscanf(fp, "%s", usrnm);
-        if (strcmp(usrnm, username) == 0)
-        {
-            int scr;
-            char temp[20];
-            fscanf(fp, "%s", temp);
-            scr = atoi(temp);
-            strcpy(users[1].username, usrnm);
-            users[1].score = scr;
-            fclose(fp);
-            return 1;
-        }
-    }
-    fclose(fp);
-    return -1;
-}
-
-int SaveGame(char usr1[], char usr2[])                                       //saving the game in the file
+int SaveGame(char usr1[], char usr2[])                                  //saving the maps
 {
     char filename[256];
     bzero(filename, 256);
@@ -498,10 +466,10 @@ int SaveGame(char usr1[], char usr2[])                                       //s
     strcat(filename, "_");
     strcat(filename, usr2);
     strcat(filename, ".txt");
-    FILE* fp = fopen(filename, "w");
+    FILE *fp = fopen(filename, "w");
     if (fp == NULL)
     {
-        printf("\nerror!\n");
+        printf("\n\nERROR!\n\n");
         return -1;
     }
     int mode;
@@ -518,7 +486,7 @@ int SaveGame(char usr1[], char usr2[])                                       //s
         {
             for (int j = 0; j < 12; j++)
             {
-                char temp[4];
+                char temp[5];
                 sprintf(temp, "%d", *pshots1[i][j]);
                 fputs(temp, fp);
                 fputc(' ', fp);
@@ -531,7 +499,7 @@ int SaveGame(char usr1[], char usr2[])                                       //s
         {
             for (int j = 0; j < 12; j++)
             {
-                char temp[4];
+                char temp[5];
                 sprintf(temp, "%d", *attackenemy1[i][j]);
                 fputs(temp, fp);
                 fputc(' ', fp);
@@ -544,7 +512,7 @@ int SaveGame(char usr1[], char usr2[])                                       //s
         {
             for (int j = 0; j < 12; j++)
             {
-                char temp[4];
+                char temp[5];
                 sprintf(temp, "%d", *pshots3[i][j]);
                 fputs(temp, fp);
                 fputc(' ', fp);
@@ -557,7 +525,7 @@ int SaveGame(char usr1[], char usr2[])                                       //s
         {
             for (int j = 0; j < 12; j++)
             {
-                char temp[4];
+                char temp[5];
                 sprintf(temp, "%d", *attackenemy3[i][j]);
                 fputs(temp, fp);
                 fputc(' ', fp);
@@ -576,7 +544,7 @@ int SaveGame(char usr1[], char usr2[])                                       //s
         {
             for (int j = 0; j < 12; j++)
             {
-                char temp[4];
+                char temp[5];
                 sprintf(temp, "%d", *pshots1[i][j]);
                 fputs(temp, fp);
                 fputc(' ', fp);
@@ -589,7 +557,7 @@ int SaveGame(char usr1[], char usr2[])                                       //s
         {
             for (int j = 0; j < 12; j++)
             {
-                char temp[4];
+                char temp[5];
                 sprintf(temp, "%d", *attackenemy1[i][j]);
                 fputs(temp, fp);
                 fputc(' ', fp);
@@ -602,7 +570,7 @@ int SaveGame(char usr1[], char usr2[])                                       //s
         {
             for (int j = 0; j < 12; j++)
             {
-                char temp[4];
+                char temp[5];
                 sprintf(temp, "%d", *pshots2[i][j]);
                 fputs(temp, fp);
                 fputc(' ', fp);
@@ -615,7 +583,7 @@ int SaveGame(char usr1[], char usr2[])                                       //s
         {
             for (int j = 0; j < 12; j++)
             {
-                char temp[4];
+                char temp[5];
                 sprintf(temp, "%d", *attackenemy2[i][j]);
                 fputs(temp, fp);
                 fputc(' ', fp);
@@ -629,6 +597,7 @@ int SaveGame(char usr1[], char usr2[])                                       //s
     return -1;
 }
 
+
 void syncingMaps(int* map[12][12], int* attackmap[12][12])                //syncing main map and enemy map
 {
     for (int i = 1; i < 11; i++)
@@ -641,7 +610,6 @@ void syncingMaps(int* map[12][12], int* attackmap[12][12])                //sync
 }
 
 void showWater(int* arr[12][12], int x1, int y1, int x2, int y2);
-
 struct node* createnode(int id, int x1, int y1, int x2, int y2, int len)        //ships bigger than 1
 {
     struct node* newnode;
@@ -691,7 +659,6 @@ void addfront1(struct node** list, int id, int x1, int y1, int len)             
     newnode->next = *list;
     *list = newnode;
 }
-
 void searchships(int id, struct node** list, int turn)              //searching and destroying ships
 {
     struct node* cur = *list;
@@ -755,10 +722,10 @@ void mapbot(int* arr[12][12], struct node** list)
     {
         *arr[i][6] = 106;
     }
-    *arr[2][7] = 107;                                       //ships size 1:
-    *arr[6][1] = 108;
-    *arr[7][10] = 109;
-    *arr[10][10] = 110;
+    *arr[2][7] = 107;                                      //ship size 1
+    *arr[6][1] = 108;                                      //ship size 1
+    *arr[7][10] = 109;                                      //ship size 1
+    *arr[10][10] = 110;                                     //ship size 1
     addfront(list, 101, 0, 0, 0, 4, 5);
     addfront(list, 102, 2, 0, 2, 2, 3);
     addfront(list, 103, 4, 4, 4, 6, 3);
@@ -1087,7 +1054,6 @@ int shooting(int* arr[12][12], int x, int y, struct node** list, int turn)
             printf("\n\noops,you missed it!\n\n");
             printf("the map now is: \n\n");
             printmap(arr);
-            printf("\n\n");
             return -1;
         }
         else if (*arr[x + 1][y + 1] == 3 || *arr[x + 1][y + 1] == 1)                     //already shot
@@ -1106,7 +1072,7 @@ int shooting(int* arr[12][12], int x, int y, struct node** list, int turn)
     }
     return 1;
 }
-void botshooting(int* arr[12][12], struct node** list, int turn)               //my smart bot:))
+void botshooting(int* arr[12][12], struct node** list, int turn)
 {
     int flag =0;
     while (*list != NULL)
@@ -1163,16 +1129,16 @@ void botshooting(int* arr[12][12], struct node** list, int turn)               /
                 int jahat = rand()%4;
                 switch (jahat)
                 {
-                    case 0:                                            //bere bala
+                    case 0:
                         x--;
                         break;
-                    case 1:                                            //bere rast
+                    case 1:
                         y++;
                         break;
-                    case 2:                                            //bere payin
+                    case 2:
                         x++;
                         break;
-                    case 3:                                            //bere chap
+                    case 3:
                         y--;
                         break;
                 }
@@ -1197,11 +1163,9 @@ void botshooting(int* arr[12][12], struct node** list, int turn)               /
             printf("\n\nthe bot shoud shoot you again:(\n!press any key to continue!\n\n");
             getchar();
             flag=1;
-            
         }
     }
 }
-
 void showWater(int* arr[12][12], int x1, int y1, int x2, int y2)        //showing the borders water
 {
     x1++;
@@ -1266,10 +1230,8 @@ void showmenu()                                                                 
     printf("2)Play with bot\n");
     printf("3)Load game\n");
     printf("4)Load last game\n");
-    printf("5)Settings\n");
-    printf("6)Score Board\n");
-    printf("7)Exit\n");
-
+    printf("5)Score Board\n");
+    printf("6)Exit\n");
 }
 
 void gameSTART()                                                                //starting game
@@ -1280,31 +1242,32 @@ void gameSTART()                                                                
         //player 1 turn:
         printf("\n\n%s turn:\n\n" , player1);
         if(shooting(attackenemy2, x, y, &ships2, 1)==0)
+        {
             return;
+        }
         if (ships2 == NULL)
         {
             printf("\n\nBOOOM!\n\n%s win!!!\n\n" ,player1);
             updateuser(player1, 71);
-            updateuser(player2, rand()%20 + 15);
+            updateuser(player2, rand()%35);
             return;
         }
 
         //player 2 turn
-        printf("\n\nplayer 2 turn:\n\n");
-        while (1)
+        printf("\n\n%s turn:\n\n" , player2);
+        if(shooting(attackenemy1, x, y, &ships1, 2)==0)
         {
-            if(shooting(attackenemy1, x, y, &ships1, 2)==0)
-                return;
-            if (ships1 == NULL)
-            {
-                printf("\n\nBOOOM!\n\n%s win!!!\n\n" ,player2);
-                updateuser(player2, 71);
-                updateuser(player1, rand()%25+10);
-                return;
-            }
-            break;
+            return;
+        }
+        if (ships1 == NULL)
+        {
+            printf("\n\nBOOOM!\n\n%s win!!!\n\n" ,player2);
+            updateuser(player2, 71);
+            updateuser(player1, rand()%36);
+            return;
         }
     }
+
 }
 void gameSTARTbot()
 {
@@ -1313,24 +1276,20 @@ void gameSTARTbot()
     {
         //player 1 turn:
         printf("\n\n%s turn:\n\n" , player1);
-        if(shooting(attackenemy3, x, y, &ships3, 3)==0)
-            return;
+        shooting(attackenemy3, x, y, &ships3, 3);
         if (ships3 == NULL)
         {
             printf("\n\nBOOOM!\n\nYou win!!!\n\n");
             return;
         }
-        
         // bot turn
         botshooting(attackenemy1, &ships1, 2);
         if (ships1 == NULL)
         {
             printf("\n\nOops!\n\nYou lose!!!\n\n");
             return;
-
         }
     }
-
 }
 
 int choice;
@@ -1346,7 +1305,6 @@ void entermenu()
             int choice1;
             while (1)
             {
-
                 printf("player 1\n");
                 printf("choose user:\n");
                 printf("1)choose from available users\n");
@@ -1386,14 +1344,9 @@ void entermenu()
             while (1)
             {
                 printf("put ships:\n");
-                printf("1)auto\n");
-                printf("2)manual\n");
+                printf("1)manual\n");
                 scanf("%d", &choice1);
                 if (choice1 == 1)
-                {
-                    //BLACK BOX FOR AUTO PUTTING SHIPS
-                }
-                else if (choice1 == 2)
                 {
                     printmap(pshots1);
                     printf("\n(Pay attention! first insert the beginning of ship then end of it!)\n\n");
@@ -1406,8 +1359,7 @@ void entermenu()
                     getship(pshots1, &ships1, 4, 1);
                     printmap(pshots1);
                     syncingMaps(pshots1, attackenemy1);
-                    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-
+                    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
                 }
                 else
                 {
@@ -1416,7 +1368,6 @@ void entermenu()
                 }
                 break;
             }
-
             //PLAYER 2:
             int choice2;
             while (1)
@@ -1434,7 +1385,7 @@ void entermenu()
                     scanf("%s", usrnm);
                     if (newuser(usrnm)>=0)
                     {
-                        strcpy(player1, usrnm);
+                        strcpy(player2, usrnm);
                     }
                     else
                         continue;
@@ -1477,9 +1428,7 @@ void entermenu()
                     getship(pshots2, &ships2, 4, 1);
                     printmap(pshots2);
                     syncingMaps(pshots2, attackenemy2);
-                    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
-
-
+                    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
                 }
                 else
                 {
@@ -1488,7 +1437,7 @@ void entermenu()
                 }
                 break;
             }
-            gameSTART();
+            gameSTART();                                                        //multiplayer mode(2)
         }
         else if (choice == 2)
         {
@@ -1520,7 +1469,7 @@ void entermenu()
                     scanf("%s", temp);
                     if (newuser(temp)>=0)
                     {
-                        strcpy(player2, temp);
+                        strcpy(player1, temp);
                     }else
                         continue;
                 }
@@ -1544,7 +1493,6 @@ void entermenu()
                     getship(pshots1, &ships1, 4, 1);
                     printmap(pshots1);
                     syncingMaps(pshots1, attackenemy1);
-
                 }
                 else
                 {
@@ -1555,22 +1503,21 @@ void entermenu()
             }
             mapbot(pshots3, &ships3);
             syncingMaps(pshots3, attackenemy3);
-            gameSTARTbot();
+            gameSTARTbot();                                             //single player (1)
         }
         else if (choice == 3)
         {
+            printf("\nfor searching the game you should enter the name users by order:\n\n");
             char usr1[100];
             char usr2[100];
             printf("\n enter user1's username: ");
             scanf("%s", usr1);
             printf("\n enter user2's username: ");
             scanf("%s", usr2);
-            //loading the game
             char filename[256];
             strcat(filename, usr1);
             strcat(filename, "_");
             strcat(filename, usr2);
-            //loading the ships
             char linkfilename[256];
             strcpy(linkfilename, filename);
             strcat(linkfilename, "linklist");
@@ -1578,12 +1525,12 @@ void entermenu()
             strcat(linkfilename, ".txt");
             LoadGame(filename, 256);
             if (strcmp(usr2, "bot") == 0) {
-                loadlinkedlist(linkfilename, 1);
+                loadlinkedlist(linkfilename, 1);                                //single player
                 gameSTARTbot();
             }
             else
             {
-                loadlinkedlist(linkfilename, 2);
+                loadlinkedlist(linkfilename, 2);                                //multiplayer
                 gameSTART();
             }
         }
@@ -1593,13 +1540,8 @@ void entermenu()
         }
         else if (choice == 5)
         {
-            //SETTINGS
-        }
-        else if (choice == 6)
-        {
-            printf("\n\nthe score board is:\n\n");
+            printf("\nSCORE BOARD:\n\n");
             showusers();
-            printf("\n\n");
         }
         else
         {
@@ -1709,6 +1651,7 @@ int main()
         }
     }
     entermenu();
+
 }
 
 
